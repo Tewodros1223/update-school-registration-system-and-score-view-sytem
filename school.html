@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>School Score System</title>
+    <link rel="stylesheet" href="school.css">
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="logo">Registration and Result View System</div>
+      <div class="user-greeting" id="userGreeting"></div>
+      <nav id="headerNav" style=" backdrop-filter: blur(10px); background-color: chartreuse; margin-right: 100px; width: auto;"></nav>
+    </header>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+      <h1 class="login-title">Registration and Result View System</h1>
+      <div class="role-selector">
+        <button class="role-btn active" onclick="setRole('student')">Student</button>
+        <button class="role-btn" onclick="setRole('teacher')">Teacher</button>
+        <button class="role-btn" onclick="setRole('admin')">Admin</button>
+      </div>
+      <form id="loginForm" onsubmit="login(event)">
+        <input type="hidden" id="role" value="student" />
+        <label for="username">Username:</label>
+        <input type="text" id="username" required />
+        <label for="password">Password:</label>
+        <input type="password" id="password" required />
+        <button type="reset" class="primary">Clear</button>
+        <button type="submit" class="primary">Login</button>
+      </form>
+      <div id="loginMessage" style="margin-top: 15px; color: red"></div>
+    </div>
+
+    <!-- Register Page (Admin/Teacher only) -->
+    <div id="registerPage" class="hidden">
+      <div class="top-bar">
+        <div>
+          <h1>Register New Student</h1>
+          <small>Grades 9 — 12 • Admin Panel</small>
+        </div>
+        <div>
+          <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+      <div class="container">
+        <div class="card">
+          <h2>Register Student</h2>
+          <label>First Name:</label>
+          <input type="text" id="firstName" placeholder="First Name" required />
+          <label>Middle Name:</label>
+          <input type="text" id="middleName" placeholder="Middle Name" required />
+          <label>Last Name:</label>
+          <input type="text" id="lastName" placeholder="Last Name" required />
+          <label>Student Phone Number:</label>
+          <input type="tel" id="phone" placeholder="Phone Number" required />
+          <label>Emergency Contact Name:</label>
+          <input type="text" id="emergencyName" placeholder="Emergency Contact" required />
+          <label>Emergency Contact Phone:</label>
+          <input type="tel" id="emergencyPhone" placeholder="Emergency Phone" required />
+          <label>Student Gender:</label>
+          <select id="gender">
+            <option value=""> Select Gender </option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+          <label>Grade:</label>
+          <select id="grade" onchange="toggleStreamSelection()">
+            <option value=""> Select Grade </option>
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+          </select>
+          <label id="streamLabel" class="hidden">Stream:</label>
+          <select id="stream" class="hidden">
+            <option value=""> Select Stream </option>
+            <option value="Natural Science">Natural Science</option>
+            <option value="Social Science">Social Science</option>
+          </select>
+          <label>Section:</label>
+          <select id="section">
+            <option value=""> Select Section </option>
+            <option value="A">Section A</option>
+            <option value="B">Section B</option>
+            <option value="C">Section C</option>
+            <option value="D">Section D</option>
+            <option value="E">Section E</option>
+            <option value="F">Section F</option>
+            <option value="G">Section G</option>
+            <option value="H">Section H</option>
+          </select>
+          <button id="registerBtn" class="primary" style="margin-top: 10px">Register Student</button>
+          <div id="registerMsg" style="margin-top: 8px; color: green"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teacher Dashboard -->
+    <div id="teacherPage" class="hidden">
+      <div class="top-bar">
+        <div>
+          <h1>Teacher Dashboard</h1>
+          <small>Enter Scores • View Comments • Manage Students • Assign Behavior Grades</small>
+        </div>
+        <div>
+          <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+      <div class="container">
+        <div class="card">
+          <div id="teacherInfo" style="margin-bottom: 15px; padding: 10px; background: #e8f4ff; border-radius: 6px;"></div>
+          <h2>Enter/Update Scores</h2>
+          <label>Grade:</label>
+          <select id="teacherGrade" onchange="populateStudentSelects()">
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+          </select>
+          <label>Section:</label>
+          <select id="teacherSection" onchange="populateStudentSelects()">
+            <option value="A">Section A</option>
+            <option value="B">Section B</option>
+            <option value="C">Section C</option>
+            <option value="D">Section D</option>
+            <option value="E">Section E</option>
+            <option value="F">Section F</option>
+            <option value="G">Section G</option>
+            <option value="H">Section H</option>
+          </select>
+          <label>Choose Student:</label>
+          <div class="inline">
+            <select id="teacherStudentSelect"></select>
+            <input id="teacherStudentId" class="small-input" placeholder="Or type ID" />
+            <input id="teacherStudentName" class="small-input" placeholder="Student Name" />
+          </div>
+          <label>Subject:</label>
+          <select id="teacherSubject"></select>
+          <label>Term:</label>
+          <select id="teacherTerm">
+            <option>Term 1</option>
+            <option>Term 2</option>
+          </select>
+          <label>Exam Type:</label>
+          <select id="teacherExam">
+            <option>Assignment</option>
+            <option>Midterm</option>
+            <option>Final</option>
+            <option>Quiz</option>
+          </select>
+          <label>Score (0–100):</label>
+          <input id="teacherScore" type="number" min="0" max="100" />
+          <button id="submitScoreBtn" class="primary" style="margin-top: 10px">Submit/Update Score</button>
+          <div id="teacherMsg" style="margin-top: 10px; color: green"></div>
+        </div>
+        <div class="card">
+          <h2>Assign Behavior Grade</h2>
+          <label>Grade:</label>
+          <select id="teacherBehaviorGrade" onchange="populateBehaviorStudentSelects()">
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+          </select>
+          <label>Section:</label>
+          <select id="teacherBehaviorSection" onchange="populateBehaviorStudentSelects()">
+            <option value="A">Section A</option>
+            <option value="B">Section B</option>
+            <option value="C">Section C</option>
+            <option value="D">Section D</option>
+            <option value="E">Section E</option>
+            <option value="F">Section F</option>
+            <option value="G">Section G</option>
+            <option value="H">Section H</option>
+          </select>
+          <label>Choose Student:</label>
+          <select id="teacherBehaviorStudentSelect"></select>
+          <label>Behavior Grade (A-E):</label>
+          <select id="teacherBehaviorScore">
+            <option value="">Select Behavior Grade</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+          </select>
+          <label>Term:</label>
+          <select id="teacherBehaviorTerm">
+            <option>Term 1</option>
+            <option>Term 2</option>
+          </select>
+          <button id="submitBehaviorBtn" class="primary" style="margin-top: 10px">Submit/Update Behavior Grade</button>
+          <div id="teacherBehaviorMsg" style="margin-top: 10px; color: green"></div>
+        </div>
+        <div class="card">
+          <h2>Pending Comments</h2>
+          <div id="teacherCommentsContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Dashboard -->
+    <div id="studentPage" class="hidden">
+      <div class="top-bar">
+        <div>
+          <h1>Student Dashboard</h1>
+          <small>View Scores • Check Status • View Behavior • Communicate with Teachers</small>
+        </div>
+        <div>
+          <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+      <div class="container">
+        <div class="card">
+          <h2>My Scores</h2>
+          <label>Term:</label>
+          <select id="viewTerm">
+            <option value="Term 1">Term 1</option>
+            <option value="Term 2">Term 2</option>
+            <option value="All">All</option>
+          </select>
+          <button id="viewScoresBtn" class="primary" style="margin-top: 10px">View Scores</button>
+          <div id="scoresTable" style="margin-top: 14px"></div>
+        </div>
+        <div class="card">
+          <h2>My Behavior Grades</h2>
+          <label>Term:</label>
+          <select id="viewBehaviorTerm">
+            <option value="Term 1">Term 1</option>
+            <option value="Term 2">Term 2</option>
+            <option value="All">All</option>
+          </select>
+          <button id="viewBehaviorBtn" class="primary" style="margin-top: 10px">View Behavior Grades</button>
+          <div id="behaviorTable" style="margin-top: 14px"></div>
+        </div>
+        <div class="card">
+          <h2>Send Comment/Question</h2>
+          <textarea id="studentComment" rows="3" placeholder="Write your comment or question..."></textarea>
+          <button id="sendCommentBtn" class="primary" style="margin-top: 8px">Send Comment</button>
+          <div id="studentCommentMsg" style="margin-top: 8px; color: green"></div>
+          <h3 style="margin-top: 20px">My Comments</h3>
+          <div id="studentCommentsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminPage" class="hidden">
+      <div class="top-bar">
+        <div>
+          <h1>Admin Dashboard</h1>
+          <small>Manage Students • Teachers • Scores • Comments • Behavior Grades</small>
+        </div>
+        <div>
+          <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+      <div class="container">
+        <div class="card">
+          <h2>Register New Teacher</h2>
+          <label>First Name:</label>
+          <input type="text" id="teacherFirstName" placeholder="First Name" required />
+          <label>Middle Name:</label>
+          <input type="text" id="teacherMiddleName" placeholder="Middle Name" required />
+          <label>Last Name:</label>
+          <input type="text" id="teacherLastName" placeholder="Last Name" required />
+          <label>Gender:</label>
+          <select id="teacherGender">
+            <option value="">Select Gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+          <label>Subject Specialty:</label>
+          <select id="teacherSubjectSpecialty">
+            <option value="">Select Subject</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="English">English</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="History">History</option>
+            <option value="Geography">Geography</option>
+            <option value="Computer">Computer</option>
+            <option value="Civics">Civics</option>
+            <option value="Economics">Economics</option>
+            <option value="PhysicalEducation">Physical Education</option>
+            <option value="Business">Business</option>
+          </select>
+          <label>Grade Levels:</label>
+          <div>
+            <input type="checkbox" id="grade9" value="9">
+            <label for="grade9">Grade 9</label>
+            <input type="checkbox" id="grade10" value="10">
+            <label for="grade10">Grade 10</label>
+            <input type="checkbox" id="grade11" value="11">
+            <label for="grade11">Grade 11</label>
+            <input type="checkbox" id="grade12" value="12">
+            <label for="grade12">Grade 12</label>
+          </div>
+          <label>Section:</label>
+          <select id="teacherSection">
+            <option value="">Select Section</option>
+            <option value="A">Section A</option>
+            <option value="B">Section B</option>
+            <option value="C">Section C</option>
+            <option value="D">Section D</option>
+            <option value="E">Section E</option>
+            <option value="F">Section F</option>
+            <option value="G">Section G</option>
+            <option value="H">Section H</option>
+          </select>
+          <button onclick="registerTeacher()" class="primary" style="margin-top:10px;">Register Teacher</button>
+          <div id="teacherRegisterMsg" style="margin-top:8px;"></div>
+        </div>
+        <div class="card">
+          <h2>All Students</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Grade</th>
+                <th>Section</th>
+                <th>Stream</th>
+                <th>Gender</th>
+                <th>Phone</th>
+                <th>Emergency Contact</th>
+                <th>Username</th>
+                <th>Behavior</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody"></tbody>
+          </table>
+          <button onclick="showPage('registerPage')" class="primary" style="margin-top: 15px">Add New Student</button>
+        </div>
+        <div class="card">
+          <h2>All Teachers</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Subject</th>
+                <th>Grades</th>
+                <th>Section</th>
+                <th>Username</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="teachersTableBody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h2>All Comments</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Student</th>
+                <th>Comment</th>
+                <th>Response</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="commentsTableBody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h2>Student Information</h2>
+          <label>Enter Student ID:</label>
+          <input id="adminStudentId" class="small-input" placeholder="Student ID" />
+          <button onclick="viewStudentInfo()" class="primary" style="margin-top: 10px">View Info</button>
+          <div id="studentInfoTable" style="margin-top: 14px"></div>
+        </div>
+        <div class="card">
+          <h2>Teacher Information</h2>
+          <label>Enter Teacher ID:</label>
+          <input id="adminTeacherId" class="small-input" placeholder="Teacher ID" />
+          <button onclick="viewTeacherInfo()" class="primary" style="margin-top: 10px">View Info</button>
+          <div id="teacherInfoTable" style="margin-top: 14px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2025 High School Registration and Result View System</p>
+      <p>Contact: <a href="mailto:support@schoolscoresystem.com">support@schoolscoresystem.com</a> | <a href="#about">About</a></p>
+    </footer>
+     <script src="school.js"></script>
+   
+  </body>
+</html>
